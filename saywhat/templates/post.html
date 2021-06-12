@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %} 
+<div class="container">
+    <div class="has-text-centered">
+        <h1 class="title is-1">{{post.title}}</h1> <br>
+        <h1 class="subtitle is-5">written by <a href="{% url 'view_account' post.op.id %}">{{post.op.username}}</a></h1>
+        <h1 class="subtitle is-5">Written on {{post.created}}</h1>
+        <h1 class="subtitle is-5">Upvotes: {{total_likes}}</h1>
+    </div>
+    <hr>
+    <div class="content">
+        <p class="is-family-sans-serif">
+            {{post.body}}
+        </p>
+        <hr>
+        <br><br>
+        <div class="is-flex is-align-items-center is-justify-content-center">
+            <a href="/" class="button is-primary">Go back</a>
+            <hr>
+            <div class="buttons">
+                {% if user.is_authenticated %} 
+                    {% if liked %} 
+                        <form action="{% url 'like_post' post.pk %}" method="post">
+                            {% csrf_token %} 
+                            <button type="submit" class="button is-danger" name="post_id" value="{{post.id}}">Remove upvote</button>
+                        </form>
+                    {% else %} 
+                        <form action="{% url 'like_post' post.pk %}" method="post">
+                            {% csrf_token %} 
+                            <button type="submit" class="button is-primary" name="post_id" value="{{post.id}}">Upvote</button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <button class="button is-disabled" disabled>Upvote</button>
+                    <p>Sign up, or log in to upvote</p>
+                {% endif %} 
+
+                {% if user == post.op %} 
+                    <br>
+                    <a href="{% url 'edit' post.pk %}" class='button is-warning'>Edit post</a>
+                    <a href="{% url 'delete' post.pk %}" class='button is-danger'>Delete post</a>
+                {% endif %}
+            </div>
+        </div>
+        <h1 class="subtitle">Comments:</h1>
+        <hr>
+        <h1 class="subtitle is-6">Add comment ({{post.comments.all.count}} so far)</h1>
+        <form action="{% url 'comment' post.pk %}" method="post">
+            {% csrf_token %} 
+            <textarea name="body" id="body" cols="30" rows="5" class="textarea"></textarea>
+            <br>
+            {% if user.is_authenticated %} 
+                <button type="submit" name='post_id' value='{{post.id}}' class='button is-success'>Add comment</button>
+            {% else %} 
+                <p>Sign up or log in to comment</p>
+                <button type="submit" name='post_id' value='{{post.id}}' class='button is-success is-disabled' disabled>Add comment</button>
+            {% endif %} 
+        </form>
+        <hr>
+        {% if post.comments.all %} 
+            {% for i in post.comments.all %} 
+                <div class="card">
+                    <div class="card-content">
+                        <div class="content">
+                            <p>
+                                {{i.body}} - <a href="{% url 'view_account' i.user.id %}">{{i.user.username}}</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <br><br>
+            {% endfor %}
+        {% else %} 
+            <p>No comments yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

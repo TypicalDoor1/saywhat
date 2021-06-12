@@ -1,0 +1,47 @@
+{% extends 'loggedin.html' %} 
+
+{% block content %} 
+<br><br>
+<div class="container">
+    <h1 class="title">About <a>{{user.username}}</a> ({{total_likes}})</h1>
+    <hr>
+    <h1 class="subtitle is-size-4">Quick stats</h1>
+    <ul>
+        <p>Lifetime upvotes: {{total_likes}}</p>
+        <p>Total posts: {{user.post_set.count}}</p>
+        <p>Total comments: {{user.comment_set.count}}</p>
+    </ul>
+    <hr>
+    <div class="columns">
+        <div class="column">
+            <div class="tile is-parent">
+                <div class="tile is-child box">
+                    <h1 class="title">Posts (Last 10)</h1>
+                    {% for i in user.post_set.all|slice:":10" %} 
+                        <a href="{% url 'detail' i.pk %}">{{i.title}}</a> | {{i.upvotes.count}} upvotes
+                        <br>
+                    {% empty %} 
+                        <small class="is-small">{{user.username}} has no posts yet :(</small>
+                    {% endfor %}
+                    <br><br>
+                    <a href="{% url 'view_posts' user.id %}">View all...</a>
+                </div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="tile is-parent">
+                <div class="tile is-child box">
+                    <h1 class="title">Comments (Last 10)</h1>
+                    {% for i in user.comment_set.all|slice:":10" %} 
+                        <p>"{{i.body}}" | on <a href="{% url 'detail' i.post.pk %}">{{i.post.title}}</a></p>
+                    {% empty %} 
+                        <p class="is-small">{{user.username}} has no comments yet :(</p>
+                    {% endfor %} 
+                    <br><br>
+                    <a href="{% url 'view_comments' user.id %}">View all...</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
